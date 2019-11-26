@@ -1,4 +1,5 @@
 import Sequelize, { Model } from 'sequelize';
+import moment from 'moment';
 
 class Appointment extends Model {
   static init(sequelize) {
@@ -6,6 +7,18 @@ class Appointment extends Model {
       {
         date: Sequelize.DATE,
         canceled_at: Sequelize.DATE,
+        past: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return moment(this.date).isBefore(moment());
+          },
+        },
+        cancelable: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return !moment(this.date).isBefore(moment());
+          },
+        },
       },
       {
         sequelize,
