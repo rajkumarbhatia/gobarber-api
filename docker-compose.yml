@@ -16,3 +16,7 @@ services:
       - /var/lib/mongodb/data
     ports:
       - '27017:27017'
+  redis:
+    image: redis:apline
+    ports:
+      - '6379:6379'
