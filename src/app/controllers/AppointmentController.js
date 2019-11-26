@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import moment from 'moment';
 import User from '../models/User';
 import Appointment from '../models/Appointment';
 import File from '../models/File';
@@ -24,6 +25,31 @@ class AppointmentController {
       return res
         .status(401)
         .json({ error: 'You can only create appointments with providers' });
+    }
+    /**
+     * Check for past dates
+     */
+    const hourStart = moment(date).format();
+
+    /**
+     * Check date availability
+     */
+    const checkAvailability = await Appointment.findOne({
+      where: {
+        provider_id,
+        canceled_at: null,
+        date: hourStart,
+      },
+    });
+
+    if (moment(date).isBefore(new Date())) {
+      return res.status(400).json({ error: 'Past dates are not permitted' });
+    }
+
+    if (checkAvailability) {
+      return res.status(400).json({
+        error: 'Appointment date is not available',
+      });
     }
 
     const appointment = await Appointment.create({
